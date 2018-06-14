@@ -51,6 +51,8 @@ private:
 
   static bool   strictBounds_;
 
+  static std::vector<float> specifiedVals_;
+
   static RooAbsData * asimovDataset_;
 
   bool    hasFloatParams_;

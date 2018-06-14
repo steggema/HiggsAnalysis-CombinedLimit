@@ -40,6 +40,7 @@ std::string AsymptoticLimits::minosAlgo_ = "stepping";
 //int         AsymptoticLimits::minimizerStrategy_  = 0;
 double AsymptoticLimits::rValue_ = 1.0;
 bool AsymptoticLimits::strictBounds_ = false;
+std::vector<float> AsymptoticLimits::specifiedVals_;
 
 RooAbsData * AsymptoticLimits::asimovDataset_ = nullptr;
 
@@ -219,6 +220,14 @@ bool AsymptoticLimits::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
 
   if (what_ == "singlePoint") {
     Combine::addBranch("r",&rValue_,"r/D");
+    RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
+    for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
+      if (std::string(a->GetName()) == "r")
+        continue;
+      RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+      specifiedVals_.push_back(rrv->getVal());
+      Combine::addBranch(a->GetName(), &specifiedVals_.back(), (std::string(a->GetName())+"/F").c_str());
+    }
     limit = getCLs(*r, rValue_, true, &limit, &limitErr); 
     return true;
   }
